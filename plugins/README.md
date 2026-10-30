@@ -276,10 +276,10 @@ python -m skillopt_sleep run --backend handoff --project "$(pwd)"
 ```
 
 Handoff snapshots and answer caches are isolated by transcript source. The
-default Claude source keeps the existing `.skillopt-sleep-handoff/` location;
-other sources use a source-specific subdirectory below
-`.skillopt-sleep-handoff/sources/` so switching `--source` cannot reuse another
-source's pinned sessions, tasks, or model answers.
+default Claude source keeps the existing handoff root (`.skillopt-sleep-handoff/`
+by default); other sources use a source-specific subdirectory below that root
+so switching `--source` cannot reuse another source's pinned sessions, tasks,
+or model answers.
 
 Answering held-out prompts from a context that has already seen their references
 contaminates the validation gate. Claude Code's `/skillopt-sleep-handoff` command
