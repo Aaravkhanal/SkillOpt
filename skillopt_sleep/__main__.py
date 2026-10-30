@@ -332,10 +332,24 @@ def _print_run_report(outcome, args, task_meta: Dict[str, Any]) -> None:
 
 
 def _handoff_dir_for(cfg) -> str:
+    import hashlib
+    import re
+
     project = cfg.get("invoked_project") or os.getcwd()
-    return os.environ.get("SKILLOPT_SLEEP_HANDOFF_DIR", "") or os.path.join(
+    root = os.environ.get("SKILLOPT_SLEEP_HANDOFF_DIR", "") or os.path.join(
         project, ".skillopt-sleep-handoff"
     )
+    source = str(cfg.get("transcript_source", "") or "")
+    # Claude is the historical default and keeps the original location so an
+    # in-progress default-source handoff resumes without moving its answers.
+    # Other sources need separate snapshots and answer caches: sharing a
+    # handoff directory lets one source's digests/tasks (or matching prompt
+    # answers) silently stand in for another source's data (#312).
+    if not source or source == "claude":
+        return root
+    slug = re.sub(r"[^A-Za-z0-9_-]+", "-", source).strip("-") or "source"
+    source_key = hashlib.sha256(source.encode("utf-8")).hexdigest()[:12]
+    return os.path.join(root, "sources", f"{slug[:48]}-{source_key}")
 
 
 def _redact_deep(obj):
